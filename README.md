@@ -10,22 +10,25 @@ A simple wrapper to send a request to a SIS webservice endpoint and return a lis
 5. Returns a list of python dictionaries.
 
 ## About the library
-The base class does bulk of the work
-Use subclasses to define values for endpointurl and allowed filters
-
-View example1.py for function based examples
-View example2.py for object oriented examples
+* The base class does bulk of the work. 
+* Use subclasses to define values for endpointurl and allowed filters
 
 ## Using the library
 Do a local build and install it. First activate your virtualenv if using it. Then in project root run:
+
 `python3 -m pip install -e .`
 
 Save your sis api token to a file and put in path to the token in the ini file (examples/sis_api.ini)
 
 ## Examples
+* View example1.py for function based examples
+* View example2.py for object oriented examples
+
 To run example s1 with data from the sistest instance
 
 `python3 examples/example1.py examples/sis_api.ini test s1`
+
 OR
+
 `python3 examples/example2.py examples/sis_api.ini test s1`
 
