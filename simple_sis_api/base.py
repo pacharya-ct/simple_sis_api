@@ -28,10 +28,10 @@ class APIBase(object):
     # all possible multivalue filters for this endpoint used as a list. 
     allowed_multivalue_filters = []
     # all possible single value filters for this endpoint. 
-    allowed_filters = ['page[number]', 'sort']
+    allowed_filters = ['page[number]', 'page[size]', 'sort']
     allowed_client_filters = []
     # Default values if applicable
-    default_filters = {'page[number]': 1, }
+    default_filters = {'page[number]': 1, 'page[size]':500 }
     default_sort = []
 
     def __init__(self, baseurl, tokenfp):
@@ -65,7 +65,7 @@ class APIBase(object):
             elif k in self.allowed_client_filters:
                 client_filters[k] = v
             else:
-                self.logger.debug(f'Filter param "{k}" not supported by endpoint {self.endpointurl}')
+                self.logger.warning(f'Filter param "{k}" not supported by endpoint {self.endpointurl}')
 
         all_data, incl_data = self._get_all_pages(**filterparams)
 
@@ -195,7 +195,10 @@ class APIBase(object):
             return matched
 
         for k, val in filters:
-            filterkey, filtertype = k.split('_')
+            filterkey, filtertype = k, None
+            if '_' in k:
+                filterkey, filtertype = k.split('_')
+
             elem_val = elem[filterkey]
             if filterkey == 'offdate' and elem_val is None:
                 elem_val = ssa.FUTURE_OFF_DATE
@@ -210,7 +213,7 @@ class APIBase(object):
                     matched = False
                     break 
 
-            elif filtertype == 'q':
+            elif filtertype in ('q', 'icontains'):
                 if val.lower() not in elem_val.lower():
                     matched = False
                     break
