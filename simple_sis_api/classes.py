@@ -72,7 +72,7 @@ class Site(APIBase):
     allowed_filters = APIBase.allowed_filters + ['isactive']
     allowed_client_filters = []
     # Default values if applicable
-    default_sort = ['netcode', 'lookupcode']
+    default_sort = ['network.netcode', 'lookupcode']
 
 class Equipment(APIBase):
     endpointurl = 'equipment'
