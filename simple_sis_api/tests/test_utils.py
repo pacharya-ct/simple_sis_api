@@ -63,6 +63,14 @@ def test_group_rows_pluralization_y_and_s():
     assert "BATTERIES" in categories
     assert "BUSES" in categories
 
+def test_group_rows_more_than_two_columns():
+    data = [
+        {"category": "SENSOR", "model": "A", "extra": 1},
+        {"category": "SENSOR", "model": "B", "extra": 2},
+    ]
+    with pytest.raises(ValueError):
+        utils.group_rows(data, "category")
+
 def test_transpose_data():
     data = [
         {"a": 1, "b": 2},
