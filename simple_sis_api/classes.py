@@ -67,8 +67,25 @@ class SiteLog(APIBase):
     default_sort = ['logtype', 'logdate']
 
 class Site(APIBase):
+    def _flatten_data(self, data, lookup={}):
+        '''
+        Overrides _flatten_data in APIBase to add sitelabels to Site details
+        '''
+        elem_list = super()._flatten_data(data, lookup)
+
+        elem_detail = elem_list[0] if elem_list else {}
+        for elem in data:
+            if elem['type'] == 'Site' and 'relationships' in elem.keys() and 'sitelabels' in elem['relationships']:
+                elem_detail['sitelabels'] = []
+                for sitelabel in elem['relationships']['sitelabels']['data']:
+                    elem_detail['sitelabels'].append(sitelabel['attributes']['labelname'])
+                elem_detail['sitelabels'] = ', '.join(elem_detail['sitelabels'])
+        elem_list = [elem_detail]
+
+        return elem_list
+    
     endpointurl = 'sites'
-    allowed_multivalue_filters = ['netcode', 'lookupcode', ]
+    allowed_multivalue_filters = ['netcode', 'lookupcode']
     allowed_filters = APIBase.allowed_filters + ['isactive']
     allowed_client_filters = []
     # Default values if applicable
