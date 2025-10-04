@@ -50,7 +50,7 @@ class SiteLabelGroup(APIBase):
 
 class SiteLabel(APIBase):
     endpointurl = 'site-labels'
-    allowed_multivalue_filters = []
+    allowed_multivalue_filters = ['netcode', 'lookupcode']
     allowed_filters = APIBase.allowed_filters + ['labelname_icontains',
         'namespace', 'description_icontains', ]
     allowed_client_filters = []
@@ -73,14 +73,20 @@ class Site(APIBase):
         '''
         elem_list = super()._flatten_data(data, lookup)
 
-        elem_detail = elem_list[0] if elem_list else {}
-        for elem in data:
-            if elem['type'] == 'Site' and 'relationships' in elem.keys() and 'sitelabels' in elem['relationships']:
-                elem_detail['sitelabels'] = []
-                for sitelabel in elem['relationships']['sitelabels']['data']:
-                    elem_detail['sitelabels'].append(sitelabel['attributes']['labelname'])
-                elem_detail['sitelabels'] = ', '.join(elem_detail['sitelabels'])
-        elem_list = [elem_detail]
+        # Add sitelabels to any existing Site elements
+        for i in range(len(elem_list)):
+            if not elem_list[i]['type'] == 'Site':
+                continue
+
+            matching_elem_in_data = next((d for d in data if int(d.get('id')) == elem_list[i]['id']), None)
+            if not matching_elem_in_data:
+                continue
+
+            if 'relationships' in matching_elem_in_data.keys() and 'sitelabels' in matching_elem_in_data['relationships']:
+                elem_list[i]['sitelabels'] = []
+                for sitelabel in matching_elem_in_data['relationships']['sitelabels']['data']:
+                    elem_list[i]['sitelabels'].append(sitelabel['attributes']['labelname'])
+                elem_list[i]['sitelabels'] = ', '.join(elem_list[i]['sitelabels'])
 
         return elem_list
     
