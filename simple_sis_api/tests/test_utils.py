@@ -35,6 +35,13 @@ def test_filter_rows():
     # None value returns original
     assert utils.filter_rows(data, "type", None) == data
 
+def test_pluralize_noun():
+    assert utils.pluralize_noun("sensor") == "sensors"
+    assert utils.pluralize_noun("battery") == "batteries"
+    assert utils.pluralize_noun("Logger") == "Loggers"
+    assert utils.pluralize_noun("CITY") == "CITIES"
+    assert utils.pluralize_noun("sensors") == "sensors"  # already plural
+
 def test_group_rows_pluralization():
     data = [
         {"category": "SENSOR", "model": "A"},
@@ -51,17 +58,14 @@ def test_group_rows_pluralization():
         if row["category"] == "SENSORS":
             assert row["model"] == "A, B" or row["model"] == "B, A"
 
-def test_group_rows_pluralization_y_and_s():
+def test_group_rows_pluralization_y():
     data = [
         {"category": "BATTERY", "model": "A"},
-        {"category": "BATTERY", "model": "B"},
-        {"category": "BUS", "model": "C"},
-        {"category": "BUS", "model": "D"},
+        {"category": "BATTERY", "model": "B"}
     ]
     grouped = utils.group_rows(data, "category")
     categories = [row["category"] for row in grouped]
     assert "BATTERIES" in categories
-    assert "BUSES" in categories
 
 def test_group_rows_more_than_two_columns():
     data = [

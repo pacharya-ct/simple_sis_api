@@ -6,6 +6,9 @@ Version: 0.1
 '''
 import datetime as dt
 
+import inflect
+inflect_engine = inflect.engine()
+
 def parsedate(val):
     if not val:
         return val
@@ -53,6 +56,27 @@ def filter_rows(data, column, values):
     filtered_data = [entry for entry in data if entry.get(column) in values]
     return filtered_data
 
+def pluralize_noun(noun):
+    """
+    Pluralize a noun using the inflect library. Preserves the original case of the input noun.
+    """
+    lower_noun = noun.lower()
+    if inflect_engine.singular_noun(lower_noun):
+        # already plural
+        return noun
+
+    plural = inflect_engine.plural_noun(lower_noun)
+    if not plural:
+        plural = noun + 's'
+    
+    # Preserve original case: if input was all upper, output all upper; if title, output title; else lower
+    if noun.isupper():
+        return plural.upper()
+    elif noun.istitle():
+        return plural.capitalize()
+    else:
+        return plural
+
 def group_rows(data, column):  
     """
     Given a list of dictionaries (data), return a new list of dictionaries
@@ -96,18 +120,33 @@ def group_rows(data, column):
     renamed = []
     for key, row in grouped_data.items():
         if counts[key] > 1:
-            # Pluralize the value (simple rule: add 'S', or use a mapping for special cases)
             val = row[column]
             if isinstance(val, str):
-                if val.endswith('Y'):
-                    plural_val = val[:-1] + 'IES'
-                elif val.endswith('S'):
-                    plural_val = val + 'ES'
-                else:
-                    plural_val = val + 'S'
-                row[column] = plural_val
+                row[column] = pluralize_noun(val)
         renamed.append(row)
     return renamed
+
+def aggregate_column(data, column, sep=", "):
+    """
+    Given a list of dictionaries (data), aggregate the values of a specified column
+    into a single string, separated by the given separator.
+    Returns a list with a single dictionary containing the aggregated value.
+    If data is empty, returns an empty list.
+    If more than one unique value is aggregated, the column name is pluralized by adding 's'.
+    """
+    if not data:
+        return []
+
+    aggregated_values = [str(entry[column]) for entry in data if column in entry]
+    unique_values = set(aggregated_values)
+    aggregated_str = sep.join(aggregated_values)
+
+    # Pluralize the column name if more than one unique value
+    if len(unique_values) > 1:
+        plural_col = pluralize_noun(column)
+        return [{plural_col: aggregated_str}]
+    else:
+        return [{column: aggregated_str}]
 
 def transpose_data(data):
     """
