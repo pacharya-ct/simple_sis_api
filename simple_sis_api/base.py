@@ -159,12 +159,15 @@ class APIBase(object):
 
             if lookup:
                 for rel, reldict in elem['relationships'].items():
-                    if 'meta' in reldict:
+                    if 'meta' in reldict or 'data' not in reldict:
                         # generally present for many to many relations. 
                         # not supported right now
                         continue
 
                     d = reldict['data']
+                    if not d:
+                        continue
+
                     lookup_key = (d['type'], int(d['id']))
                     if lookup_key in lookup:
                         # do not overwrite any keys already present. 
