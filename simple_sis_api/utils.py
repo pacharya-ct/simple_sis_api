@@ -132,7 +132,7 @@ def aggregate_column(data, column, sep=", "):
     into a single string, separated by the given separator.
     Returns a list with a single dictionary containing the aggregated value.
     If data is empty, returns an empty list.
-    If more than one unique value is aggregated, the column name is pluralized by adding 's'.
+    If more than one unique value is aggregated, the column name is pluralized using the inflect library via the pluralize_noun function.
     """
     if not data:
         return []
