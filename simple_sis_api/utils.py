@@ -138,19 +138,16 @@ def aggregate_column(data, column, sep=", "):
         return []
 
     # Collect distinct values, preserving order
-    seen = set()
     distinct_values = []
     for entry in data:
         if column in entry:
             val = str(entry[column])
-            if val not in seen:
-                seen.add(val)
+            if val not in distinct_values:
                 distinct_values.append(val)
-    unique_values = set(distinct_values)
     aggregated_str = sep.join(distinct_values)
 
     # Pluralize the column name if more than one unique value
-    if len(unique_values) > 1:
+    if len(distinct_values) > 1:
         plural_col = pluralize_noun(column)
         return [{plural_col: aggregated_str}]
     else:
