@@ -128,7 +128,7 @@ def group_rows(data, column):
 
 def aggregate_column(data, column, sep=", "):
     """
-    Given a list of dictionaries (data), aggregate the values of a specified column
+    Given a list of dictionaries (data), aggregate the distinct values of a specified column
     into a single string, separated by the given separator.
     Returns a list with a single dictionary containing the aggregated value.
     If data is empty, returns an empty list.
@@ -137,9 +137,17 @@ def aggregate_column(data, column, sep=", "):
     if not data:
         return []
 
-    aggregated_values = [str(entry[column]) for entry in data if column in entry]
-    unique_values = set(aggregated_values)
-    aggregated_str = sep.join(aggregated_values)
+    # Collect distinct values, preserving order
+    seen = set()
+    distinct_values = []
+    for entry in data:
+        if column in entry:
+            val = str(entry[column])
+            if val not in seen:
+                seen.add(val)
+                distinct_values.append(val)
+    unique_values = set(distinct_values)
+    aggregated_str = sep.join(distinct_values)
 
     # Pluralize the column name if more than one unique value
     if len(unique_values) > 1:

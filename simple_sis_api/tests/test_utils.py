@@ -75,6 +75,28 @@ def test_group_rows_more_than_two_columns():
     with pytest.raises(ValueError):
         utils.group_rows(data, "category")
 
+def test_aggregate_column_single_value():
+    data = [
+        {"type": "A"},
+        {"type": "A"}
+    ]
+    result = utils.aggregate_column(data, "type")
+    assert result == [{"type": "A"}]
+
+def test_aggregate_column_multiple_values():
+    data = [
+        {"type": "A"},
+        {"type": "B"}
+    ]
+    result = utils.aggregate_column(data, "type")
+    # Should pluralize column name
+    assert result == [{"types": "A, B"}]
+
+def test_aggregate_column_empty():
+    data = []
+    result = utils.aggregate_column(data, "type")
+    assert result == []
+
 def test_transpose_data():
     data = [
         {"a": 1, "b": 2},
