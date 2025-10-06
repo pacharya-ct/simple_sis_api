@@ -138,12 +138,7 @@ def aggregate_column(data, column, sep=", "):
         return []
 
     # Collect distinct values, preserving order
-    distinct_values = []
-    for entry in data:
-        if column in entry:
-            val = str(entry[column])
-            if val not in distinct_values:
-                distinct_values.append(val)
+    distinct_values = list(dict.fromkeys(str(entry[column]) for entry in data if column in entry))
     aggregated_str = sep.join(distinct_values)
 
     # Pluralize the column name if more than one unique value
