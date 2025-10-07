@@ -6,9 +6,6 @@ Version: 0.1
 '''
 import datetime as dt
 
-import inflect
-inflect_engine = inflect.engine()
-
 def parsedate(val):
     if not val:
         return val
@@ -56,34 +53,12 @@ def filter_rows(data, column, values):
     filtered_data = [entry for entry in data if entry.get(column) in values]
     return filtered_data
 
-def pluralize_noun(noun):
-    """
-    Pluralize a noun using the inflect library. Preserves the original case of the input noun.
-    """
-    lower_noun = noun.lower()
-    if inflect_engine.singular_noun(lower_noun):
-        # already plural
-        return noun
-
-    plural = inflect_engine.plural_noun(lower_noun)
-    if not plural:
-        plural = noun + 's'
-    
-    # Preserve original case: if input was all upper, output all upper; if title, output title; else lower
-    if noun.isupper():
-        return plural.upper()
-    elif noun.istitle():
-        return plural.capitalize()
-    else:
-        return plural
-
 def group_rows(data, column):  
     """
     Given a list of dictionaries (data), return a new list of dictionaries
     where rows with the same value in the specified column are grouped together.
     The values of other columns are joined with commas.
     Only works if there are exactly two columns in the data.
-    The value of the grouping column is pluralized if more than one row was combined.
 
     Example usage:
     To group by 'category' column:
@@ -92,39 +67,26 @@ def group_rows(data, column):
             {"category": "LOGGER", "model": "C"}]
     grouped = group_rows(data, "category")
     Result:
-    [{"category": "SENSORS", "model": "A, B"},
+    [{"category": "SENSOR", "model": "A, B"},
         {"category": "LOGGER", "model": "C"}]
-    Note that 'SENSOR' is pluralized to 'SENSORS' because there were multiple rows combined.
     """
     if not data or len(data[0].keys()) != 2:
         raise ValueError("Data must contain exactly two columns to group rows.")
 
+    # Create a dictionary of the form {column_value: {column: column_value, other_column: joined_values}}
     grouped_data = {}
-    counts = {}
     for entry in data:
-        key = entry.get(column)
-        if key not in grouped_data:
-            grouped_data[key] = entry.copy()
-            counts[key] = 1
+        if entry[column] not in grouped_data:
+            grouped_data[entry[column]] = entry.copy()
         else:
             for k, v in entry.items():
                 if k != column:
-                    if k in grouped_data[key]:
-                        if v not in grouped_data[key][k].split(','):
-                            grouped_data[key][k] += f", {v}"
-                    else:
-                        grouped_data[key][k] = v
-            counts[key] += 1
-
-    # Pluralize the value of the grouping column if more than one row was combined
-    renamed = []
-    for key, row in grouped_data.items():
-        if counts[key] > 1:
-            val = row[column]
-            if isinstance(val, str):
-                row[column] = pluralize_noun(val)
-        renamed.append(row)
-    return renamed
+                    if v not in grouped_data[entry[column]][k].split(','):
+                        grouped_data[entry[column]][k] += f", {v}"
+    
+    # Reformat the grouped data back into a list of dictionaries
+    grouped_data = list(grouped_data.values())
+    return grouped_data
 
 def aggregate_column(data, column, sep=", "):
     """
@@ -141,12 +103,7 @@ def aggregate_column(data, column, sep=", "):
     distinct_values = list(dict.fromkeys(str(entry[column]) for entry in data if column in entry))
     aggregated_str = sep.join(distinct_values)
 
-    # Pluralize the column name if more than one unique value
-    if len(distinct_values) > 1:
-        plural_col = pluralize_noun(column)
-        return [{plural_col: aggregated_str}]
-    else:
-        return [{column: aggregated_str}]
+    return [{column: aggregated_str}]
 
 def transpose_data(data):
     """
