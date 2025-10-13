@@ -32,7 +32,7 @@ OR
 
 `python3 examples/example2.py examples/sis_api.ini test s1`
 
-## Testing
-Tests are located in simple_sis_api/simple_sis_api/tests. To run them, use 
+## Data Transformations
 
-`python3 -m pytest`
+If you'd like to transform any of the data from SIS, we recommend converting it to a pandas DataFrame with `pandas.DataFrame(your_sis_data)`.
+
