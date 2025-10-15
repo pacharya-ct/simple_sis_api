@@ -182,3 +182,13 @@ class TelemetryNode(APIBase):
     allowed_client_filters = []
     # Default values if applicable
     default_sort = ['ondate',]
+
+class FdsnwsChannel(APIBase):
+    endpointurl = 'fdsnws/channel'
+    allowed_multivalue_filters = ['net', 'sta', 'chan', 'loc']
+    allowed_filters = ['page[number]', 'page[size]', 'format']
+    allowed_client_filters = []
+    # Default values if applicable
+    # Only the JSON format is supported in simplie_sis_api
+    default_filters = APIBase.default_filters | {'format': 'vnd.api+json'}
+    default_sort = []
