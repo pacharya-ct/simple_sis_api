@@ -185,7 +185,7 @@ class TelemetryNode(APIBase):
 
 class FdsnwsChannel(APIBase):
     endpointurl = 'fdsnws/channel'
-    allowed_multivalue_filters = ['net', 'sta', 'chan', 'loc']
+    allowed_multivalue_filters = ['net', 'sta', 'cha', 'loc']
     allowed_filters = ['page[number]', 'page[size]', 'format']
     allowed_client_filters = []
     # Default values if applicable
