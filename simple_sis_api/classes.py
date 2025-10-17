@@ -73,7 +73,7 @@ class Site(APIBase):
         '''
         elem_list = super()._flatten_data(data, lookup)
 
-        # Add sitelabels to any existing Site elements
+        # Add places and sitelabels to any existing Site elements
         for i in range(len(elem_list)):
             if not elem_list[i]['type'] == 'Site':
                 continue
@@ -82,11 +82,14 @@ class Site(APIBase):
             if not matching_elem_in_data:
                 continue
 
-            if 'relationships' in matching_elem_in_data.keys() and 'sitelabels' in matching_elem_in_data['relationships']:
-                elem_list[i]['sitelabels'] = []
-                for sitelabel in matching_elem_in_data['relationships']['sitelabels']['data']:
-                    elem_list[i]['sitelabels'].append(sitelabel['attributes']['labelname'])
-                elem_list[i]['sitelabels'] = ', '.join(elem_list[i]['sitelabels'])
+            if 'relationships' in matching_elem_in_data.keys():
+                if 'sitelabels' in matching_elem_in_data['relationships']:
+                    elem_list[i]['sitelabels'] = []
+                    for sitelabel in matching_elem_in_data['relationships']['sitelabels']['data']:
+                        elem_list[i]['sitelabels'].append(sitelabel['attributes']['labelname'])
+                    elem_list[i]['sitelabels'] = ', '.join(elem_list[i]['sitelabels'])
+                if 'place' in matching_elem_in_data['relationships']:
+                    elem_list[i]['place_id'] = matching_elem_in_data['relationships']['place']['data']['id']
 
         return elem_list
     
