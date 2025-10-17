@@ -82,6 +82,14 @@ class SiteLog(APIBase):
     default_sort = ['logtype', 'logdate']
 
 class Site(APIBase):
+    endpointurl = 'sites'
+    allowed_path_parameters = ['places', 'networks', 'site-labels']
+    allowed_multivalue_filters = ['netcode', 'lookupcode']
+    allowed_filters = APIBase.allowed_filters + ['isactive']
+    allowed_client_filters = []
+    # Default values if applicable
+    default_sort = ['network.netcode', 'lookupcode']
+    
     def _flatten_data(self, data, lookup={}):
         '''
         Overrides _flatten_data in APIBase to add sitelabels to Site details
@@ -107,14 +115,6 @@ class Site(APIBase):
                     elem_list[i]['place_id'] = matching_elem_in_data['relationships']['place']['data']['id']
 
         return elem_list
-    
-    endpointurl = 'sites'
-    allowed_path_parameters = ['places', 'networks', 'site-labels']
-    allowed_multivalue_filters = ['netcode', 'lookupcode']
-    allowed_filters = APIBase.allowed_filters + ['isactive']
-    allowed_client_filters = []
-    # Default values if applicable
-    default_sort = ['network.netcode', 'lookupcode']
 
 class Equipment(APIBase):
     endpointurl = 'equipment'
