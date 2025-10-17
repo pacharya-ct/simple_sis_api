@@ -25,6 +25,8 @@ class APIBase(object):
     
     # Define the following class attrs in subclasses
     endpointurl = None      
+    # all possible path parameters for this endpoint. only one path parameter can be used at a time.
+    allowed_path_parameters = []
     # all possible multivalue filters for this endpoint used as a list. 
     allowed_multivalue_filters = []
     # all possible single value filters for this endpoint. 
@@ -43,7 +45,7 @@ class APIBase(object):
         # Set the token to be used in the request header
         self.auth_header = {'Authorization': f'Bearer {token}',}
 
-    def get_filtered_list(self, filterby, sortby=[]):
+    def get_filtered_list(self, filterby, pathparam = {}, sortby=[]):
         ''' 
         Sends a request to a list API endpoint and 
         returns filtered results in a flattened format
@@ -66,6 +68,16 @@ class APIBase(object):
                 client_filters[k] = v
             else:
                 self.logger.warning(f'Filter param "{k}" not supported by endpoint {self.endpointurl}')
+
+        if len(pathparam) > 1:
+            self.logger.warning(f'Multiple path parameters {pathparam.keys()} specified. Only one is supported. Using the first supported one.')
+        for k, v in pathparam.items():
+            if k in self.allowed_path_parameters:
+                self.endpointurl = f'{k}/{v}/{self.endpointurl}'
+                break
+            else:
+                self.logger.warning(f'Path param "{k}" not supported by endpoint {self.endpointurl}')
+
 
         all_data, incl_data = self._get_all_pages(**filterparams)
 

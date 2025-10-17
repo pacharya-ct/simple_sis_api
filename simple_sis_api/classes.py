@@ -9,6 +9,7 @@ from simple_sis_api import APIBase
 
 class SiteEpoch(APIBase):
     endpointurl = 'site-epochs'
+    allowed_path_parameters = ['organizations', 'sites']
     allowed_multivalue_filters = ['netcode', 'lookupcode', 'operatorcode']
     allowed_filters = APIBase.allowed_filters + ['isactive', 'latitude_gte', 'latitude_lte', 
         'longitude_gte', 'longitude_lte', ]
@@ -19,6 +20,7 @@ class SiteEpoch(APIBase):
 
 class EquipmentInstallation(APIBase):
     endpointurl = 'equipment-installations'
+    allowed_path_parameters = ['equipment', 'site-epochs']
     allowed_multivalue_filters = ['category', 'categorygroup', 'modelname', 'serialnumber', 
         'netcode', 'lookupcode']
     allowed_filters = APIBase.allowed_filters + ['isactive', 'ondate_gte', ]
@@ -41,6 +43,7 @@ class EquipmentInstallation(APIBase):
 
 class SiteLabelGroup(APIBase):
     endpointurl = 'site-label-groups'
+    allowed_path_parameters = []
     allowed_multivalue_filters = []
     allowed_filters = APIBase.allowed_filters + ['groupname_icontains',
         'namespace', 'description_icontains', ]
@@ -50,6 +53,7 @@ class SiteLabelGroup(APIBase):
 
 class SiteLabel(APIBase):
     endpointurl = 'site-labels'
+    allowed_path_parameters = ['site-label-groups', 'sites']
     allowed_multivalue_filters = ['netcode', 'lookupcode']
     allowed_filters = APIBase.allowed_filters + ['labelname_icontains',
         'namespace', 'description_icontains', ]
@@ -57,8 +61,19 @@ class SiteLabel(APIBase):
     # Default values if applicable
     default_sort = ['namespace', 'labelname']
 
+class SiteLabelGroups(APIBase):
+    endpointurl = 'site-label-groups'
+    allowed_path_parameters = ['site-labels']
+    allowed_multivalue_filters = []
+    allowed_filters = APIBase.allowed_filters + ['groupname_icontains',
+        'namespace', 'description_icontains', ]
+    allowed_client_filters = []
+    # Default values if applicable
+    default_sort = ['namespace', 'groupname']
+
 class SiteLog(APIBase):
     endpointurl = 'site-logs'
+    allowed_path_parameters = ['sites']
     allowed_multivalue_filters = ['netcode', 'lookupcode', ]
     allowed_filters = APIBase.allowed_filters + ['subject_icontains',
         'logdate_gte', 'logdate_lte', 'logtype_icontains', 'author_icontains']
@@ -67,6 +82,14 @@ class SiteLog(APIBase):
     default_sort = ['logtype', 'logdate']
 
 class Site(APIBase):
+    endpointurl = 'sites'
+    allowed_path_parameters = ['places', 'networks', 'site-labels']
+    allowed_multivalue_filters = ['netcode', 'lookupcode']
+    allowed_filters = APIBase.allowed_filters + ['isactive']
+    allowed_client_filters = []
+    # Default values if applicable
+    default_sort = ['network.netcode', 'lookupcode']
+    
     def _flatten_data(self, data, lookup={}):
         '''
         Overrides _flatten_data in APIBase to add sitelabels to Site details
@@ -92,16 +115,10 @@ class Site(APIBase):
                     elem_list[i]['place_id'] = matching_elem_in_data['relationships']['place']['data']['id']
 
         return elem_list
-    
-    endpointurl = 'sites'
-    allowed_multivalue_filters = ['netcode', 'lookupcode']
-    allowed_filters = APIBase.allowed_filters + ['isactive']
-    allowed_client_filters = []
-    # Default values if applicable
-    default_sort = ['network.netcode', 'lookupcode']
 
 class Equipment(APIBase):
     endpointurl = 'equipment'
+    allowed_path_parameters = ['equipment-models']
     allowed_multivalue_filters = ['category', 'categorygroup', 'modelname', 'serialnumber',
         'operatorcode', 'ownercode', 'inventory', 'equipmentid']
     allowed_filters = APIBase.allowed_filters + []
@@ -111,6 +128,7 @@ class Equipment(APIBase):
 
 class EquipmentCategory(APIBase):
     endpointurl = 'equipment-categories'
+    allowed_path_parameters = []
     allowed_multivalue_filters = ['category', 'categorygroup', ]
     allowed_filters = APIBase.allowed_filters + []
     allowed_client_filters = []
@@ -118,7 +136,8 @@ class EquipmentCategory(APIBase):
     default_sort = ['categorygroup', 'category', ]
 
 class EquipmentModel(APIBase):
-    endpointurl = 'equipment=models'
+    endpointurl = 'equipment-models'
+    allowed_path_parameters = ['equipment-categories']
     allowed_multivalue_filters = ['category', 'categorygroup', 'modelname', 'family', ]
     allowed_filters = APIBase.allowed_filters + []
     allowed_client_filters = []
@@ -127,6 +146,7 @@ class EquipmentModel(APIBase):
 
 class EquipmentLog(APIBase):
     endpointurl = 'equipment-logs'
+    allowed_path_parameters = ['equipment']
     allowed_multivalue_filters = ['category', 'serialnumber',
         'operatorcode', ]
     allowed_filters = APIBase.allowed_filters + []
@@ -137,6 +157,7 @@ class EquipmentLog(APIBase):
 
 class EquipmentProblem(APIBase):
     endpointurl = 'equipment-problems'
+    allowed_path_parameters = ['equipment']
     allowed_multivalue_filters = ['category', 'serialnumber',
         'operatorcode', ]
     allowed_filters = APIBase.allowed_filters + []
@@ -147,6 +168,7 @@ class EquipmentProblem(APIBase):
 
 class Network(APIBase):
     endpointurl = 'networks'
+    allowed_path_parameters = []
     allowed_multivalue_filters = []
     allowed_filters = APIBase.allowed_filters + []
     allowed_client_filters = []
@@ -154,6 +176,7 @@ class Network(APIBase):
 
 class Organization(APIBase):
     endpointurl = 'organizations'
+    allowed_path_parameters = []
     allowed_multivalue_filters = []
     allowed_filters = APIBase.allowed_filters + []
     allowed_client_filters = ['namespace', 'orgcode_q']
@@ -161,6 +184,7 @@ class Organization(APIBase):
 
 class Place(APIBase):
     endpointurl = 'places'
+    allowed_path_parameters = []
     allowed_multivalue_filters = ['placename_icontains', ]
     allowed_filters = APIBase.allowed_filters + ['latitude_gte', 'latitude_lte',
         'longitude_gte', 'longitude_lte', ]
@@ -170,6 +194,7 @@ class Place(APIBase):
 
 class TelemetryConnection(APIBase):
     endpointurl = 'telemetry-connections'
+    allowed_path_parameters = ['telemetry-nodes']
     allowed_multivalue_filters = ['connectiontype', 'category', 'modelname', 'serialnumber',
         'netcode', 'lookupcode', 'operatorcode']
     allowed_filters = APIBase.allowed_filters + []
@@ -179,6 +204,7 @@ class TelemetryConnection(APIBase):
 
 class TelemetryNode(APIBase):
     endpointurl = 'telemetry-nodes'
+    allowed_path_parameters = ['equipment-installations', 'site-epochs', 'telemetry-connections']
     allowed_multivalue_filters = ['category', 'modelname', 'serialnumber',
         'netcode', 'lookupcode', 'operatorcode']
     allowed_filters = APIBase.allowed_filters + []
@@ -188,6 +214,7 @@ class TelemetryNode(APIBase):
 
 class FdsnwsChannel(APIBase):
     endpointurl = 'fdsnws/channel'
+    allowed_path_parameters = []
     allowed_multivalue_filters = ['net', 'sta', 'cha', 'loc']
     allowed_filters = ['page[number]', 'page[size]', 'format']
     allowed_client_filters = []
