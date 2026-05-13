@@ -222,3 +222,13 @@ class FdsnwsChannel(APIBase):
     # Only the JSON format is supported in simplie_sis_api
     default_filters = APIBase.default_filters | {'format': 'vnd.api+json'}
     default_sort = []
+
+class ShakeAlertSuperNetSites(APIBase):
+    endpointurl = 'shakealert-supernet-sites'
+    allowed_path_parameters = []
+    allowed_multivalue_filters = ['lookupcode', 'netcode', 'regionname']
+    allowed_filters = APIBase.allowed_filters + ['iscore', 'iseew', 'latitude_gte', 'latitude_lte',
+        'longitude_gte', 'longitude_lte']
+    allowed_client_filters = []
+    # Default values if applicable
+    default_sort = []
